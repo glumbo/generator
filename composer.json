@@ -1,0 +1,16 @@
+{
+    "name": "glumbo/generator",
+    "description": "Creating module with all related files such as model, view, controller, response, request, repository etc.",
+    "type": "package",
+    "license": "MIT",
+    "authors": [{
+        "name": "Ali Arslan",
+        "email": "aliihsanarslan@pikoyazilim.com"
+    }],
+    "autoload": {
+        "psr-4": {
+            "Glumbo\\Generator\\": "src/"
+        }
+    },
+    "require": {}
+}
