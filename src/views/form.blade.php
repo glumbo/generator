@@ -66,6 +66,11 @@
                 {{ Form::checkbox('model_delete', '1', false) }}Delete
                 <div class="control__indicator"></div>
             </label>
+            <label class="control control--checkbox">
+                <!-- For Delete Operation of CRUD -->
+                {{ Form::checkbox('model_upload', '1', false) }}Upload
+                <div class="control__indicator"></div>
+            </label>
         </div>
     </div>
     <!-- End Crud Operations -->
@@ -224,13 +229,13 @@
             appendMessage = '';
             switch(type) {
                 case 'warning' :
-                    appendMessage = "<span class='"+ element +"-warning'><i class='fa fa-exclamation-triangle' aria-hidden='true'></i>&nbsp; "+ message +"</span>";
+                    appendMessage = "<span class='"+ element +"-warning'><i class='fal fa-exclamation-triangle' aria-hidden='true'></i>&nbsp; "+ message +"</span>";
                     break;
                 case 'error' :
-                    appendMessage = "<span class='"+ element +"-error'><i class='fa fa-exclamation-circle' aria-hidden='true'></i>&nbsp; "+ message +"</span>";
+                    appendMessage = "<span class='"+ element +"-error'><i class='fal fa-exclamation-circle' aria-hidden='true'></i>&nbsp; "+ message +"</span>";
                     break;
                 case 'success' :
-                    appendMessage = "<span class='"+ element +"-success'><i class='fa fa-check' aria-hidden='true'></i>&nbsp; "+ message +"</span>";
+                    appendMessage = "<span class='"+ element +"-success'><i class='fal fa-check' aria-hidden='true'></i>&nbsp; "+ message +"</span>";
             }
 
             $("."+element+"-messages").html(appendMessage);

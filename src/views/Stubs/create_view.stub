@@ -10,7 +10,7 @@
 @endsection
 
 @section('content')
-    {{ Form::open(['route' => 'admin.dummy_small_plural_model.store', 'class' => 'form-horizontal', 'role' => 'form', 'method' => 'post', 'id' => 'create-dummy_small_model']) }}
+    {{ Form::open(['route' => 'admin.dummy_small_plural_model.store', 'class' => 'form-horizontal', 'role' => 'form', 'method' => 'post', 'id' => 'create-dummy_small_model', 'files' => files_upload_permission]) }}
 
         <div class="box box-info">
             <div class="box-header with-border">

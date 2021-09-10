@@ -228,6 +228,7 @@ class Generator
         $this->manage_request = 'Manage'.$this->model.'Request';
 
         //CRUD Options
+        $this->upload = !empty($input['model_upload']) ? true : false;
         $this->edit = !empty($input['model_edit']) ? true : false;
         $this->create = !empty($input['model_create']) ? true : false;
         $this->delete = !empty($input['model_delete']) ? true : false;
@@ -533,6 +534,7 @@ class Generator
                 'DummyNamespace'                => ucfirst($this->removeFileNameFromEndOfNamespace($this->repo_namespace)),
                 'DummyModelNamespace'           => $this->model_namespace,
                 'DummyRepoName'                 => $this->repository,
+                'files_upload_permission'       => $this->upload,
                 'dummy_model_name'              => $this->model,
                 'dummy_small_model_name'        => strtolower($this->model),
                 'model_small_plural'            => strtolower(Str::plural($this->model)),
