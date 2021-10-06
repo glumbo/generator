@@ -67,7 +67,7 @@
 
 @section('after-scripts')
     {{-- For DataTables --}}
-    {{ Html::script('public/'.mix('js/dataTable.js')) }}
+    @include('includes.datatables')
 
     <script>
         $(function() {

@@ -67,16 +67,51 @@
                 <div class="control__indicator"></div>
             </label>
             <label class="control control--checkbox">
-                <!-- For Delete Operation of CRUD -->
+                <!-- For Upload Operation of CRUD -->
                 {{ Form::checkbox('model_upload', '1', false) }}Upload
                 <div class="control__indicator"></div>
             </label>
         </div>
     </div>
+    <div id="columns">
+
+    </div>
+    <div id="column" class="form-group hidden">
+        <div class="col-lg-2 control-label">
+            {{ Form::label('operations', trans('generator::labels.modules.form.column')) }}
+        </div>
+        <div class="col-lg-10">
+            <div class="col-lg-3">
+                {{ Form::text('columns[][name]', null, ['class' => 'form-control', 'placeholder' => 'e.g., name']) }}
+            </div>
+            <div class="col-lg-2">
+                {{ Form::select('columns[][type]', ["integer","string","decimal","timestamp"], null, ['class' => 'form-control select2 status', 'placeholder' => trans('generator::labels.modules.form.type')]) }}
+            </div>
+            <div class="col-lg-2">
+                <label class="control control--checkbox">
+                    <!-- For Delete Operation of CRUD -->
+                    {{ Form::checkbox('columns[][nullable]', '1', false) }} {{ trans('generator::labels.modules.form.nullable') }}
+                    <div class="control__indicator"></div>
+                </label>
+            </div>
+            <div class="col-lg-2">
+                {{ Form::text('columns[][default]', null, ['class' => 'form-control', 'placeholder' => trans('generator::labels.modules.form.default')]) }}
+            </div>
+            <div class="col-lg-2">
+                <a href="javascript:;" class="btn btn-danger btn-sm remove_column"><i class="fal fa-times"></i></a>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-lg-2"></div>
+        <div class="col-lg-10">
+            <a href="javascript:;" class="btn btn-info btn-md add_column"><i class="fal fa-plus"></i> {{trans('generator::labels.modules.form.add_column')}}</a>
+        </div>
+    </div>
     <!-- End Crud Operations -->
     <div class="box-header text-center">
         <hr width=60%/>
-        <h3 class="box-title"> Optional </h3>
+        <h3 class="box-title"> {{trans('generator::labels.modules.form.optional')}} </h3>
         <hr width=60%/>
     </div><!-- /.box-header -->
     <!-- Events --> 
@@ -88,7 +123,7 @@
                 {{ Form::text('event[]', null, ['class' => 'form-control box-size', 'placeholder' => trans('generator::labels.modules.form.event'), 'style' => 'width:100%']) }}
             </div><!--col-lg-10-->
             <a href="#" class="btn btn-danger btn-md remove-field hidden">Remove Event</a>
-            <a href="#" class="btn btn-primary btn-md add-field">Add Event</a>
+            <a href="#" class="btn btn-info btn-md add-field">Add Event</a>
         </div><!--form control-->
     </div>
 
@@ -378,6 +413,15 @@
             if (val.match(/[^a-zA-Z]/g)) {
                $(this).val(val.replace(/[^a-zA-Z]/g, ''));
             }
+        });
+        $(".add_column").on("click", function(){
+            var column = $("#column").html();
+            column = '<div class="form-group column">' + column + '</div>';
+            $("#columns").append(column);   
+        });
+        $('body').on("click","a.remove_column", function(){
+            var column = $(this).closest(".column");
+            column.remove();
         });
     </script>
 @endsection

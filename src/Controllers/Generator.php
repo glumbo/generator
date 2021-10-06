@@ -847,21 +847,21 @@ class Generator
             //Create Blade
             $create_path = $path.DIRECTORY_SEPARATOR.'create.blade';
             //Generate Create Blade
-            $this->generateFile('create_view', ['dummy_small_plural_model' => $model_lower_plural, 'dummy_small_model' => $model_lower], $create_path);
+            $this->generateFile('create_view', ['dummy_small_plural_model' => $model_lower_plural, 'dummy_small_model' => $model_lower, 'files_upload_permission'=> $this->upload], $create_path);
         }
         //Edit Blade
         if ($this->edit) {
             //Edit Blade
             $edit_path = $path.DIRECTORY_SEPARATOR.'edit.blade';
             //Generate Edit Blade
-            $this->generateFile('edit_view', ['dummy_small_plural_model' => $model_lower_plural, 'dummy_small_model' => $model_lower], $edit_path);
+            $this->generateFile('edit_view', ['dummy_small_plural_model' => $model_lower_plural, 'dummy_small_model' => $model_lower, 'files_upload_permission' => $this->upload], $edit_path);
         }
         //Form Blade
         if ($this->create || $this->edit) {
             //Form Blade
             $form_path = $path.DIRECTORY_SEPARATOR.'form.blade';
             //Generate Form Blade
-            $this->generateFile('form_view', [], $form_path);
+            $this->generateFile('form_view', ['dummy_small_plural_model' => $model_lower_plural, 'dummy_small_model' => $model_lower], $form_path);
         }
         //BreadCrumbs Folder Path
         $breadcrumbs_path = escapeSlashes('app\\Http\\Breadcrumbs\\Backend');
