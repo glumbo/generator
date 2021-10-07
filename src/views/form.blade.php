@@ -82,20 +82,20 @@
         </div>
         <div class="col-lg-10">
             <div class="col-lg-3">
-                {{ Form::text('columns[][name]', null, ['class' => 'form-control', 'placeholder' => 'e.g., name']) }}
+                {{ Form::text('columns[0][name]', null, ['class' => 'form-control', 'placeholder' => 'e.g., name']) }}
             </div>
             <div class="col-lg-2">
-                {{ Form::select('columns[][type]', ["integer","string","decimal","timestamp"], null, ['class' => 'form-control select2 status', 'placeholder' => trans('generator::labels.modules.form.type')]) }}
+                {{ Form::select('columns[0][type]', ["Integer", "String", "Text", "Decimal", "Timestamp", "File"], null, ['class' => 'form-control select2 status', 'placeholder' => trans('generator::labels.modules.form.type')]) }}
             </div>
             <div class="col-lg-2">
                 <label class="control control--checkbox">
                     <!-- For Delete Operation of CRUD -->
-                    {{ Form::checkbox('columns[][nullable]', '1', false) }} {{ trans('generator::labels.modules.form.nullable') }}
+                    {{ Form::checkbox('columns[0][nullable]', '1', false) }} {{ trans('generator::labels.modules.form.nullable') }}
                     <div class="control__indicator"></div>
                 </label>
             </div>
             <div class="col-lg-2">
-                {{ Form::text('columns[][default]', null, ['class' => 'form-control', 'placeholder' => trans('generator::labels.modules.form.default')]) }}
+                {{ Form::text('columns[0][default]', null, ['class' => 'form-control', 'placeholder' => trans('generator::labels.modules.form.default')]) }}
             </div>
             <div class="col-lg-2">
                 <a href="javascript:;" class="btn btn-danger btn-sm remove_column"><i class="fal fa-times"></i></a>
@@ -415,7 +415,9 @@
             }
         });
         $(".add_column").on("click", function(){
+            var count = $("#columns").find(".column").length;
             var column = $("#column").html();
+            column = column.replaceAll('[0]', '['+count+']');
             column = '<div class="form-group column">' + column + '</div>';
             $("#columns").append(column);   
         });

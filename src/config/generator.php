@@ -21,5 +21,6 @@ return [
 // views folder after resources/views
 // Default : backend
 'views_folder' => 'backend',
+'migrations_folder' => 'database/migrations',
 
 ];

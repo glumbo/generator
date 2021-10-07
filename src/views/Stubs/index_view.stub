@@ -22,6 +22,7 @@
                     <thead>
                         <tr>
                             <th>{{ trans('labels.backend.dummy_small_plural_model.table.id') }}</th>
+                            index_thead
                             <th>{{ trans('labels.backend.dummy_small_plural_model.table.createdat') }}</th>
                             <th>{{ trans('labels.general.actions') }}</th>
                         </tr>
@@ -29,6 +30,7 @@
                     <thead class="transparent-bg">
                         <tr>
                             <th></th>
+                            index_empty_th
                             <th></th>
                             <th></th>
                         </tr>
@@ -61,6 +63,7 @@
                 },
                 columns: [
                     {data: 'id', name: '{{config('module.dummy_small_plural_model.table')}}.id'},
+                    index_data
                     {data: 'created_at', name: '{{config('module.dummy_small_plural_model.table')}}.created_at'},
                     {data: 'actions', name: 'actions', searchable: false, sortable: false}
                 ],

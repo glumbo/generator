@@ -73,6 +73,7 @@ class ModuleController extends Controller
         $this->generator->createRouteFiles();
         $this->generator->insertToLanguageFiles();
         $this->generator->createViewFiles();
+        dd($this->generator->indexes);
         $this->generator->createEvents();
         
         // Creating the Module

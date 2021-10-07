@@ -6,6 +6,7 @@ use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
+use Carbon\Carbon;
 
 class Generator
 {
@@ -167,6 +168,8 @@ class Generator
      */
     protected $view_path = 'resources\\views\\';
 
+    protected $migration_path = 'database\\migrations\\';
+
     /**
      * Event Namespace.
      */
@@ -233,6 +236,8 @@ class Generator
         $this->create = !empty($input['model_create']) ? true : false;
         $this->delete = !empty($input['model_delete']) ? true : false;
 
+        $this->columns = !empty($input['columns']) ? $input['columns'] : NULL ;
+
         $model_singular = strtolower(Str::singular($this->model));
         
         //Permissions
@@ -258,6 +263,10 @@ class Generator
 
         //Generate Namespaces
         $this->createNamespacesAndValues();
+
+        $this->table = "tests";
+        $this->setColumns();
+        $this->createMigration();
     }
 
     /**
@@ -534,11 +543,11 @@ class Generator
                 'DummyNamespace'                => ucfirst($this->removeFileNameFromEndOfNamespace($this->repo_namespace)),
                 'DummyModelNamespace'           => $this->model_namespace,
                 'DummyRepoName'                 => $this->repository,
-                'files_upload_permission'       => $this->upload,
                 'dummy_model_name'              => $this->model,
                 'dummy_small_model_name'        => strtolower($this->model),
                 'model_small_plural'            => strtolower(Str::plural($this->model)),
                 'dummy_small_plural_model_name' => strtolower(Str::plural($this->model)),
+                'all_repositories_stuff' => $this->repositories,
         ];
         //Generating the repo file
         $this->generateFile(false, $replacements, lcfirst($this->repo_namespace), $file_contents);
@@ -760,10 +769,7 @@ class Generator
             'management' => "$model_singular Management",
             'title'      => "$model_plural",
 
-            'table' => [
-                'id'        => 'Id',
-                'createdat' => 'Created At',
-            ],
+            'table' => $this->labels
         ];
         //Pushing values to labels
         add_key_value_in_file($path.'/labels.php', [$model_plural_key => $labels], 'backend');
@@ -841,7 +847,12 @@ class Generator
         //Index blade
         $index_path = $path.DIRECTORY_SEPARATOR.'index.blade';
         //Generate the Index blade file
-        $this->generateFile('index_view', ['dummy_small_plural_model' => $model_lower_plural], $index_path);
+        $this->generateFile('index_view', [
+            'dummy_small_plural_model' => $model_lower_plural,
+            'index_thead' => $this->indexes['index_thead'],
+            'index_empty_th' => $this->indexes['index_empty_th'],
+            'index_data' => $this->indexes['index_data'],
+        ], $index_path);
         //Create Blade
         if ($this->create) {
             //Create Blade
@@ -861,7 +872,11 @@ class Generator
             //Form Blade
             $form_path = $path.DIRECTORY_SEPARATOR.'form.blade';
             //Generate Form Blade
-            $this->generateFile('form_view', ['dummy_small_plural_model' => $model_lower_plural, 'dummy_small_model' => $model_lower], $form_path);
+            $this->generateFile('form_view', [
+                'dummy_small_plural_model' => $model_lower_plural,
+                'dummy_small_model' => $model_lower,
+                'all_form_stuff' => $this->form_elements
+            ], $form_path);
         }
         //BreadCrumbs Folder Path
         $breadcrumbs_path = escapeSlashes('app\\Http\\Breadcrumbs\\Backend');
@@ -893,12 +908,23 @@ class Generator
             return 'Table Already Exists!';
         } else {
             //Calling Artisan command to create table
-            Artisan::call('make:migration', [
-                'name'     => 'create_'.$table.'_table',
-                '--create' => $table,
-            ]);
+            // Artisan::call('make:migration', [
+            //     'name'     => 'create_'.$table.'_table',
+            //     '--create' => $table,
+            // ]);
 
-            return Artisan::output();
+            // return Artisan::output();
+            $path = escapeSlashes(strtolower(($this->migration_path)));
+            $dummy_small_plural_model = Str::plural(strtolower($this->model));
+            $migration_path = $path.DIRECTORY_SEPARATOR.Carbon::now()->format('Y_m_d_His').'_create_'.$dummy_small_plural_model.'_table';
+            $this->generateFile('migration', 
+                [
+                    'dummy_small_plural_model' => $dummy_small_plural_model,
+                    'dummy_name' => $this->model,
+                    'all_migrations_stuff' => $this->migrations,
+                ]
+                , $migration_path
+            );
         }
     }
 
@@ -1022,5 +1048,224 @@ class Generator
         $textToDelete = substr($string, $beginningPos, ($endPos + strlen($end)) - $beginningPos);
 
         return str_replace($textToDelete, '', $string);
+    }
+
+    public function setColumns(){
+        $this->setMigrations();
+        $this->setRepositories();
+        $this->setLabels();
+        $this->setIndex();
+        $this->setForm();
+    }
+
+    public function setMigrations(){
+        $migrations = "";
+        foreach ($this->columns as $key => $column) {
+            if(isset($column["name"]) && !empty($column["name"])){
+                if($column["type"] == 0){
+                    $migrations .= '$table->integer(\''.$column['name'].'\')';
+                }elseif ($column["type"] == 1 || $column["type"] == 5) {
+                    $migrations .= '$table->string(\''.$column['name'].'\')';
+                }elseif ($column["type"] == 2) {
+                    $migrations .= '$table->text(\''.$column['name'].'\')';
+                }elseif ($column["type"] == 3) {
+                    $migrations .= '$table->decimal(\''.$column['name'].'\', 8, 2)';
+                }elseif ($column["type"] == 4) {
+                    $migrations .= '$table->timestamp(\''.$column['name'].'\')';
+                }
+
+                if(isset($column["nullable"])){
+                    $migrations = $migrations."->nullable()";
+                }
+                if(isset($column["default"])){
+                    $migrations = $migrations."->defalut(".$column["default"].")";
+                }
+                $migrations .= ";\n\t\t\t";
+            }
+        }
+        $this->migrations = $migrations;
+    }
+    public function setRepositories(){
+        $repositories = "";
+        $model_small_plural = Str::plural(strtolower($this->model));
+        foreach ($this->columns as $key => $column) {
+            if(isset($column["name"]) && !empty($column["name"])){
+                $repositories .= 'config(\'module.' .$model_small_plural. '.table\').\'.'.$column["name"].'\'';
+                $repositories .= ",\n\t\t\t\t";
+            }
+        }
+        $this->repositories = $repositories;
+    }
+    public function setLabels(){
+        $table = [
+            'id'        => 'Id',
+        ];
+        $model_small_plural = Str::plural(strtolower($this->model));
+        foreach ($this->columns as $key => $column) {
+            if(isset($column["name"]) && !empty($column["name"])){
+                $table[$column["name"]] = ucfirst($column["name"]);
+            }
+        }
+
+        $table['createdat'] ='Created At';
+        $this->labels = $table;
+    }
+    public function setIndex(){
+        $indexes = array();
+        $indexes['index_thead'] = "";
+        $indexes['index_empty_th'] = "";
+        $indexes['index_data'] = "";
+
+        $model_small_plural = Str::plural(strtolower($this->model));
+        foreach ($this->columns as $key => $column) {
+            if(isset($column["name"]) && !empty($column["name"])){
+                $indexes['index_thead'] .= '<th>{{ trans(\'labels.backend.'.$model_small_plural.'.table.'.$column["name"].'\') }}</th>'."\n\t\t\t\t\t\t\t";
+                $indexes['index_empty_th'] .= '<th></th>'."\n\t\t\t\t\t\t\t";
+                $indexes['index_data'] .= '{data: \''.$column["name"].'\', name: \'{{config(\'module.'.$model_small_plural.'.table\')}}.'.$column["name"].'\'},'."\n\t\t\t\t\t";
+            }
+        }
+        $this->indexes = $indexes;
+    }
+
+    public function setForm(){
+        $form_elements = "";
+        foreach ($this->columns as $key => $column) {
+            if(isset($column["name"]) && !empty($column["name"])){
+                $form_elements .= $this->getFormElement($column["type"], $column["name"], isset($column["nullable"]) ? $column["nullable"] : false)."\n\t\t";
+            }
+        }
+        $this->form_elements = $form_elements;
+    }
+
+    public function getFormElement($type, $name,$nullable = false){
+        switch ($type) {
+            case '0':
+                return $this->getFormElementNumber($name,$nullable);
+                break;
+            case '1':
+                return $this->getFormElementString($name,$nullable);
+                break;
+            case '2':
+                return $this->getFormElementText($name,$nullable);
+                break;
+            case '3':
+                return $this->getFormElementDecimal($name,$nullable);
+                break;
+            case '4':
+                return $this->getFormElementTimestamp($name,$nullable);
+                break;
+            case '5':
+                return $this->getFormElementFile($name,$nullable);
+                break;
+            
+            default:
+                return $this->getFormElementString($name,$nullable);
+                break;
+        }
+    }
+    public function getFormElementNumber($name,$nullable){
+        $model_small_plural = Str::plural(strtolower($this->model));
+        return 
+        '<div class="form-group {{ ($errors->has(\''.$name.'\') ? \' has-error\' : \'\') }}">
+            {{ Form::label(\''.$name.'\', _tr(\'labels.backend.'.$model_small_plural.'.table.'.$name.'\'), [\'class\' => \'col-lg-2 control-label '.($nullable ? '' : 'required') .'\']) }}
+            <div class="col-lg-10">
+                {{ Form::number(\''.$name.'\', null, [\'class\' => \'form-control box-size\', \'placeholder\' => _tr(\'labels.backend.'.$model_small_plural.'.table.'.$name.'\'), '.($nullable ? '' : '\'required\' => \'required\'').']) }}
+                @if ($errors->has(\''.$name.'\'))
+                    <span class="help-block">
+                        <strong>{{ $errors->first(\''.$name.'\') }}</strong>
+                    </span>
+                @endif
+            </div><!--col-lg-10-->
+        </div><!--form-group-->';
+    }
+
+    public function getFormElementString($name,$nullable){
+        $model_small_plural = Str::plural(strtolower($this->model));
+        return 
+        '<div class="form-group {{ $errors->has(\''.$name.'\') ? \' has-error\' : \'\' }}">
+            {{ Form::label(\''.$name.'\', _tr(\'labels.backend.'.$model_small_plural.'.table.'.$name.'\'), [\'class\' => \'col-lg-2 control-label '.($nullable ? '' : 'required') .'\']) }}
+            <div class="col-lg-10">
+                {{ Form::text(\''.$name.'\', null, [\'class\' => \'form-control box-size\', \'placeholder\' => _tr(\'labels.backend.'.$model_small_plural.'.table.'.$name.'\'), '.($nullable ? '' : '\'required\' => \'required\'').']) }}
+                @if ($errors->has(\''.$name.'\'))
+                    <span class="help-block">
+                        <strong>{{ $errors->first(\''.$name.'\') }}</strong>
+                    </span>
+                @endif
+            </div><!--col-lg-10-->
+        </div><!--form-group-->';
+    }
+    public function getFormElementText($name,$nullable){
+        $model_small_plural = Str::plural(strtolower($this->model));
+        return 
+            '<div class="form-group {{ $errors->has(\''.$name.'\') ? \' has-error\' : \'\' }}">
+                {{ Form::label(\''.$name.'\', _tr(\'labels.backend.'.$model_small_plural.'.table.'.$name.'\'), [\'class\' => \'col-lg-2 control-label '.($nullable ? '' : 'required') .'\']) }}
+                <div class="col-lg-10 mce-box">
+                    {{ Form::textarea(\''.$name.'\', null,[\'class\' => \'form-control\', \'placeholder\' => _tr(\'labels.backend.'.$model_small_plural.'.table.'.$name.'\'), '.($nullable ? '' : '\'required\' => \'required\'').']) }}
+                    @if ($errors->has(\''.$name.'\'))
+                        <span class="help-block">
+                            <strong>{{ $errors->first(\''.$name.'\') }}</strong>
+                        </span>
+                    @endif
+                </div><!--col-lg-3-->
+            </div><!--form control-->';
+    }
+
+    public function getFormElementDecimal($name,$nullable){
+        $model_small_plural = Str::plural(strtolower($this->model));
+        return 
+            '<div class="form-group {{ $errors->has(\''.$name.'\') ? \' has-error\' : \'\' }}">
+                {{ Form::label(\''.$name.'\', _tr(\'labels.backend.'.$model_small_plural.'.table.'.$name.'\'), [\'class\' => \'col-lg-2 control-label '.($nullable ? '' : 'required') .'\']) }}
+                <div class="col-lg-10">
+                    {{ Form::number(\''.$name.'\', null, [\'class\' => \'form-control box-size\', \'placeholder\' => _tr(\'labels.backend.'.$model_small_plural.'.table.'.$name.'\'), \'step\' => \'0.01\' ,'.($nullable ? '' : '\'required\' => \'required\'').']) }}
+                    @if ($errors->has(\''.$name.'\'))
+                        <span class="help-block">
+                            <strong>{{ $errors->first(\''.$name.'\') }}</strong>
+                        </span>
+                    @endif
+                </div><!--col-lg-10-->
+            </div><!--form-group-->';
+    }
+
+    public function getFormElementTimestamp($name,$nullable){
+        $model_small_plural = Str::plural(strtolower($this->model));
+        return 
+            '<div class="form-group {{ $errors->has(\''.$name.'\') ? \' has-error\' : \'\' }}">
+                {{ Form::label(\''.$name.'\', _tr(\'labels.backend.'.$model_small_plural.'.table.'.$name.'\'), [\'class\' => \'col-lg-2 control-label '.($nullable ? '' : 'required') .'\']) }}
+                <div class="col-lg-10">
+                    {{ Form::text(\''.$name.'\', null, [\'class\' => \'form-control datetimepicker1 box-size\', \'id\' => \'datetimepicker1\', \'placeholder\' => _tr(\'labels.backend.'.$model_small_plural.'.table.'.$name.'\'), '.($nullable ? '' : '\'required\' => \'required\'').']) }}
+                    @if ($errors->has(\''.$name.'\'))
+                        <span class="help-block">
+                            <strong>{{ $errors->first(\''.$name.'\') }}</strong>
+                        </span>
+                    @endif
+                </div><!--col-lg-10-->
+            </div><!--form-group-->';
+    }
+    public function getFormElementFile($name,$nullable){
+        $model_small_plural = Str::plural(strtolower($this->model));
+        return 
+            '<div class="form-group {{ $errors->has(\''.$name.'\') ? \' has-error\' : \'\' }}">
+                {{ Form::label(\''.$name.'\', _tr(\'labels.backend.'.$model_small_plural.'.table.'.$name.'\'), [\'class\' => \'col-lg-2 control-label\']) }}
+                @if(!empty($'.$model_small_plural.'->'.$name.'))
+                    <div class="col-lg-1 file_show">
+                        <img src="{{ Storage::disk(\'public\')->url($'.$model_small_plural.'->'.$name.') }}" height="80" width="80">
+                        <i class="fal fa-times remove_file"></i>
+                    </div>
+                    <div class="col-lg-5">
+                        <div class="custom-file-input">
+                            <input type="file" name="'.$name.'" id="file-1" class="inputfile inputfile-1" data-multiple-caption="{count} files selected" />
+                            <label for="file-1"><i class="fal fa-upload"></i><span>Choose a file</span></label>
+                            <input type="hidden" name="remove_file" id="remove_file" value="0" />
+                        </div>
+                    </div>
+                @else
+                    <div class="col-lg-5">
+                        <div class="custom-file-input">
+                                <input type="file" name="'.$name.'" id="file-1" class="inputfile inputfile-1" data-multiple-caption="{count} files selected" '.($nullable ? '' : 'required') .'/>
+                                <label for="file-1" class="'.($nullable ? '' : 'required').'"><i class="fal fa-upload"></i><span>Choose a file</span></label>
+                        </div>
+                    </div>
+                @endif
+            </div><!--form control-->';
     }
 }

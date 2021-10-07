@@ -30,6 +30,7 @@ class DummyRepoName extends BaseRepository
         return $this->query()
             ->select([
                 config('module.model_small_plural.table').'.id',
+                all_repositories_stuff
                 config('module.model_small_plural.table').'.created_at',
                 config('module.model_small_plural.table').'.updated_at',
             ]);
