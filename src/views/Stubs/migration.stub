@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class Createdummy_nameTable extends Migration
+class Createdummy_plural_modelTable extends Migration
 {
     /**
      * Run the migrations.

@@ -231,7 +231,7 @@ class Generator
         $this->manage_request = 'Manage'.$this->model.'Request';
 
         //CRUD Options
-        $this->upload = !empty($input['model_upload']) ? true : false;
+        $this->upload = !empty($input['model_upload']) ? 'true' : 'false';
         $this->edit = !empty($input['model_edit']) ? true : false;
         $this->create = !empty($input['model_create']) ? true : false;
         $this->delete = !empty($input['model_delete']) ? true : false;
@@ -263,8 +263,6 @@ class Generator
 
         //Generate Namespaces
         $this->createNamespacesAndValues();
-
-        $this->table = "tests";
         $this->setColumns();
         $this->createMigration();
     }
@@ -566,6 +564,10 @@ class Generator
             $this->generateFile('CreateResponse', [
                 'DummyNamespace' => ucfirst($this->removeFileNameFromEndOfNamespace($this->create_response_namespace)),
                 'dummy_small_plural_model' => strtolower(Str::plural($this->model)),
+                'all_model_paths' => $this->all_model_paths,
+                'all_relations' => $this->all_relations,
+                'compact_relations_array' => $this->compact_relations_array,
+                'relation_small_plural' => $this->model_namespace,
             ], lcfirst($this->create_response_namespace));
         }
 
@@ -575,6 +577,10 @@ class Generator
                 'DummyNamespace' => ucfirst($this->removeFileNameFromEndOfNamespace($this->edit_response_namespace)),
                 'DummyModelNamespace'         => $this->model_namespace,
                 'dummy_small_plural_model' => strtolower(Str::plural($this->model)),
+                'all_model_paths' => $this->all_model_paths,
+                'all_relations' => $this->all_relations,
+                'compact_relations_array' => $this->compact_relations_array,
+                'relation_small_plural' => $this->model_namespace,
             ], lcfirst($this->edit_response_namespace));
         }
 
@@ -920,7 +926,7 @@ class Generator
             $this->generateFile('migration', 
                 [
                     'dummy_small_plural_model' => $dummy_small_plural_model,
-                    'dummy_name' => $this->model,
+                    'dummy_plural_model' => Str::plural($this->model),
                     'all_migrations_stuff' => $this->migrations,
                 ]
                 , $migration_path
@@ -1056,13 +1062,14 @@ class Generator
         $this->setLabels();
         $this->setIndex();
         $this->setForm();
+        $this->setResponses();
     }
 
     public function setMigrations(){
         $migrations = "";
         foreach ($this->columns as $key => $column) {
             if(isset($column["name"]) && !empty($column["name"])){
-                if($column["type"] == 0){
+                if($column["type"] == 0 || $column["type"] == 6){
                     $migrations .= '$table->integer(\''.$column['name'].'\')';
                 }elseif ($column["type"] == 1 || $column["type"] == 5) {
                     $migrations .= '$table->string(\''.$column['name'].'\')';
@@ -1131,13 +1138,13 @@ class Generator
         $form_elements = "";
         foreach ($this->columns as $key => $column) {
             if(isset($column["name"]) && !empty($column["name"])){
-                $form_elements .= $this->getFormElement($column["type"], $column["name"], isset($column["nullable"]) ? $column["nullable"] : false)."\n\t\t";
+                $form_elements .= $this->getFormElement($column["type"], $column["name"], isset($column["nullable"]) ? $column["nullable"] : false, isset($column["relation"]) ? $column["relation"] : false)."\n\t\t";
             }
         }
         $this->form_elements = $form_elements;
     }
 
-    public function getFormElement($type, $name,$nullable = false){
+    public function getFormElement($type, $name,$nullable = false, $relation){
         switch ($type) {
             case '0':
                 return $this->getFormElementNumber($name,$nullable);
@@ -1156,6 +1163,9 @@ class Generator
                 break;
             case '5':
                 return $this->getFormElementFile($name,$nullable);
+                break;
+            case '6':
+                return $this->getFormElementSelect($name,$nullable,$relation);
                 break;
             
             default:
@@ -1267,5 +1277,46 @@ class Generator
                     </div>
                 @endif
             </div><!--form control-->';
+    }
+    public function getFormElementSelect($name,$nullable,$relation){
+        $model_small_plural = Str::plural(strtolower($this->model));
+        $relation_small_plural = Str::plural(strtolower($relation));
+        return 
+            '@if($'.$relation_small_plural.'->count()>0)
+                <div class="form-group {{ $errors->has(\''.$name.'\') ? \' has-error\' : \'\' }}">
+                    {{ Form::label(\''.$name.'\', _tr(\'labels.backend.'.$model_small_plural.'.table.'.$name.'\'), [\'class\' => \'col-lg-2 control-label\']) }}
+                    <div class="col-lg-10">
+                    {{ Form::select(\''.$name.'\', $'.$relation_small_plural.', null, [\'class\' => \'form-control select2 status box-size\', \'placeholder\' => _tr(\'labels.backend.'.$model_small_plural.'.table.'.$name.'\')]) }}
+                    @if ($errors->has(\''.$name.'\'))
+                            <span class="help-block">
+                                <strong>{{ $errors->first(\''.$name.'\') }}</strong>
+                            </span>
+                        @endif
+                    </div><!--col-lg-3-->
+                </div><!--form control-->
+            @endif';
+    }
+
+    public function setResponses()
+    {
+        $all_model_paths = "";
+        $all_relations = "";
+        $compact_relations_array = "";
+        foreach ($this->columns as $key => $column) {
+            if(isset($column["name"]) && !empty($column["name"]) && isset($column["relation"])){
+                $relation = ucfirst($column["relation"]);
+                $relation_small = strtolower($column["relation"]);
+                $relation_small_plural = Str::plural($relation_small);
+                $relation_plural = Str::plural($relation);
+                $all_model_paths .= 'use App\Models\\'.$relation_plural.'\\'.$relation.";\n";
+                $compact_relations_array .= "'".$relation_small_plural."', ";
+                $all_relations .= '$'.$relation_small_plural.'=collect('.$relation.'::all()->toArray())->mapWithKeys(function ($item) {
+                    return [$item[\'id\'] => $item[\'name\']];
+                });';
+            }
+        }
+        $this->all_model_paths = $all_model_paths;
+        $this->all_relations = $all_relations;
+        $this->compact_relations_array = $compact_relations_array;
     }
 }

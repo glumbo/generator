@@ -3,6 +3,7 @@
 namespace DummyNamespace;
 
 use Illuminate\Contracts\Support\Responsable;
+all_model_paths
 
 class EditResponse implements Responsable
 {
@@ -28,7 +29,8 @@ class EditResponse implements Responsable
      */
     public function toResponse($request)
     {
-        return view('backend.dummy_small_plural_model.edit')->with([
+        all_relations
+        return view('backend.dummy_small_plural_model.edit',compact(compact_relations_array))->with([
             'dummy_small_plural_model' => $this->dummy_small_plural_model
         ]);
     }

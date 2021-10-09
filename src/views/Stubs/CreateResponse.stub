@@ -3,6 +3,7 @@
 namespace DummyNamespace;
 
 use Illuminate\Contracts\Support\Responsable;
+all_model_paths
 
 class CreateResponse implements Responsable
 {
@@ -15,6 +16,8 @@ class CreateResponse implements Responsable
      */
     public function toResponse($request)
     {
-        return view('backend.dummy_small_plural_model.create');
+        all_relations
+        
+        return view('backend.dummy_small_plural_model.create',compact(compact_relations_array));
     }
 }

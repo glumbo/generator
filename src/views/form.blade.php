@@ -82,20 +82,20 @@
         </div>
         <div class="col-lg-10">
             <div class="col-lg-3">
-                {{ Form::text('columns[0][name]', null, ['class' => 'form-control', 'placeholder' => 'e.g., name']) }}
+                {{ Form::text('columns[x][name]', null, ['class' => 'form-control', 'placeholder' => 'e.g., name']) }}
             </div>
             <div class="col-lg-2">
-                {{ Form::select('columns[0][type]', ["Integer", "String", "Text", "Decimal", "Timestamp", "File"], null, ['class' => 'form-control select2 status', 'placeholder' => trans('generator::labels.modules.form.type')]) }}
+                {{ Form::select('columns[x][type]', ["Integer", "String", "Text", "Decimal", "Timestamp", "File", "Select"], null, ['class' => 'form-control select2 status type', 'placeholder' => trans('generator::labels.modules.form.type')]) }}
             </div>
             <div class="col-lg-2">
                 <label class="control control--checkbox">
                     <!-- For Delete Operation of CRUD -->
-                    {{ Form::checkbox('columns[0][nullable]', '1', false) }} {{ trans('generator::labels.modules.form.nullable') }}
+                    {{ Form::checkbox('columns[x][nullable]', '1', false) }} {{ trans('generator::labels.modules.form.nullable') }}
                     <div class="control__indicator"></div>
                 </label>
             </div>
             <div class="col-lg-2">
-                {{ Form::text('columns[0][default]', null, ['class' => 'form-control', 'placeholder' => trans('generator::labels.modules.form.default')]) }}
+                {{ Form::text('columns[x][default]', null, ['class' => 'form-control default', 'placeholder' => trans('generator::labels.modules.form.default')]) }}
             </div>
             <div class="col-lg-2">
                 <a href="javascript:;" class="btn btn-danger btn-sm remove_column"><i class="fal fa-times"></i></a>
@@ -417,13 +417,25 @@
         $(".add_column").on("click", function(){
             var count = $("#columns").find(".column").length;
             var column = $("#column").html();
-            column = column.replaceAll('[0]', '['+count+']');
-            column = '<div class="form-group column">' + column + '</div>';
+
+            column = column.replaceAll('[x]', '['+count+']');
+            
+            column = '<div class="form-group column" data-count="'+count+'" >' + column + '</div>';
             $("#columns").append(column);   
         });
         $('body').on("click","a.remove_column", function(){
             var column = $(this).closest(".column");
             column.remove();
         });
+        $('body').on("change", "select.type", function () {
+            var column = $(this).closest(".column");
+            var count = column.data('count');
+            if($(this).val() == 6){
+                column.find(".default").attr("name","columns["+count+"][relation]").attr("placeholder","Relation");
+            }else{
+                column.find(".default").attr("name","columns["+count+"][default]").attr("placeholder","Default");
+            }
+            
+        })
     </script>
 @endsection
