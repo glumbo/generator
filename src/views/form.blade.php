@@ -1,5 +1,5 @@
 <div class="box-body">
-    <div class="form-group">
+    <div class="form-group mb-2">
         <div class="col-lg-10 col-lg-offset-1">
             <div class="alert alert-warning">
                 Note : You need to have 0777 permission to all folders of the project.
@@ -7,8 +7,8 @@
         </div>
     </div>
     <!-- Module Name -->
-    <div class="form-group">
-        {{ Form::label('name', trans('generator::labels.modules.form.name'), ['class' => 'col-lg-2 control-label required']) }}
+    <div class="form-group mt-2">
+        {{ Form::label('name', _tr('generator::labels.modules.form.name'), ['class' => 'col-lg-2 control-label form-label mt-2 required']) }}
 
         <div class="col-lg-10">
             {{ Form::text('name', null, ['class' => 'form-control box-size', 'placeholder' => 'e.g., Blog', 'required' => 'required']) }}
@@ -16,8 +16,8 @@
     </div>
 
     <!-- Directory -->
-    <div class="form-group">
-        {{ Form::label('directory_name', trans('generator::labels.modules.form.directory_name'), ['class' => 'col-lg-2 control-label required']) }}
+    <div class="form-group mt-2">
+        {{ Form::label('directory_name', _tr('generator::labels.modules.form.directory_name'), ['class' => 'col-lg-2 control-label form-label mt-2 required']) }}
 
         <div class="col-lg-10">
             {{ Form::text('directory_name', null, ['class' => 'form-control box-size', 'placeholder' => 'e.g., Blog', 'required' => true]) }}
@@ -26,8 +26,8 @@
     <!-- End Directory -->
 
     <!-- Model Name -->
-    <div class="form-group">
-        {{ Form::label('model_name', trans('generator::labels.modules.form.model_name'), ['class' => 'col-lg-2 control-label required']) }}
+    <div class="form-group mt-2">
+        {{ Form::label('model_name', _tr('generator::labels.modules.form.model_name'), ['class' => 'col-lg-2 control-label form-label mt-2 required']) }}
 
         <div class="col-lg-10">
             {{ Form::text('model_name', null, ['class' => 'form-control box-size only-text', 'placeholder' => 'e.g., Blog', 'required' => true]) }}
@@ -37,8 +37,8 @@
     <!-- End Model Name -->
 
     <!-- Table Name -->
-    <div class="form-group">
-        {{ Form::label('table_name', trans('generator::labels.modules.form.table_name'), ['class' => 'col-lg-2 control-label']) }}
+    <div class="form-group mt-2">
+        {{ Form::label('table_name', _tr('generator::labels.modules.form.table_name'), ['class' => 'col-lg-2 control-label form-label mt-2']) }}
 
         <div class="col-lg-10">
             {{ Form::text('table_name', null, ['class' => 'form-control box-size', 'placeholder' => 'e.g., Blog']) }}
@@ -48,82 +48,87 @@
     <!-- End Table Name -->
 
     <!-- Crud Operations Create/Edit/Delete to be added to the field (Read operation is given by default)-->
-    <div class="form-group">
-        {{ Form::label('operations', 'CRUD Operations', ['class' => 'col-lg-2 control-label']) }}
+    <div class="form-group mt-2 row">
+        {{ Form::label('operations', 'CRUD Operations', ['class' => 'col-lg-2 control-label form-label mt-2']) }}
         <div class="col-lg-8">
-            <label class="control control--checkbox">
+            <div class="form-check form-check-inline">
                 <!-- For Create Operation of CRUD -->
-                {{ Form::checkbox('model_create', '1', false) }}Create
+                {{ Form::checkbox('model_create', '1', false, ['class' => 'form-check-input']) }}
+                <label class="form-check-label">{{ _tr('create') }}</label>
                 <div class="control__indicator"></div>
-            </label>
-            <label class="control control--checkbox">
+            </div>
+            <div class="form-check form-check-inline">
                 <!-- For Edit Operation of CRUD -->
-                {{ Form::checkbox('model_edit', '1', false) }}Edit
+                {{ Form::checkbox('model_edit', '1', false, ['class' => 'form-check-input']) }}
+                <label class="form-check-label">{{ _tr('edit') }}</label>
                 <div class="control__indicator"></div>
-            </label>
-            <label class="control control--checkbox">
+            </div>
+            <div class="form-check form-check-inline">
                 <!-- For Delete Operation of CRUD -->
-                {{ Form::checkbox('model_delete', '1', false) }}Delete
+                {{ Form::checkbox('model_delete', '1', false, ['class' => 'form-check-input']) }}
+                <label class="form-check-label">{{ _tr('delete') }}</label>
                 <div class="control__indicator"></div>
-            </label>
-            <label class="control control--checkbox">
+            </div>
+            <div class="form-check form-check-inline">
                 <!-- For Upload Operation of CRUD -->
-                {{ Form::checkbox('model_upload', '1', false) }}Upload
+                {{ Form::checkbox('model_upload', '1', false, ['class' => 'form-check-input']) }}
+                <label class="form-check-label">{{ _tr('upload') }}</label>
                 <div class="control__indicator"></div>
-            </label>
+            </div>
         </div>
     </div>
     <div id="columns">
 
     </div>
-    <div id="column" class="form-group hidden">
+    <div id="column" class="form-group hidden mb-2">
         <div class="col-lg-2 control-label">
-            {{ Form::label('operations', trans('generator::labels.modules.form.column')) }}
+            {{ Form::label('operations', _tr('generator::labels.modules.form.column'), ['class' => 'control-label form-label mt-2']) }}
         </div>
-        <div class="col-lg-10">
+        <div class="row">
             <div class="col-lg-3">
                 {{ Form::text('columns[x][name]', null, ['class' => 'form-control', 'placeholder' => 'e.g., name']) }}
             </div>
             <div class="col-lg-2">
-                {{ Form::select('columns[x][type]', ["Integer", "String", "Text", "Decimal", "Timestamp", "File", "Select"], null, ['class' => 'form-control select2 status type', 'placeholder' => trans('generator::labels.modules.form.type')]) }}
+                {{ Form::select('columns[x][type]', ["Integer", "String", "Text", "Decimal", "Timestamp", "File", "Select"], null, ['class' => 'form-control select2 status type', 'placeholder' => _tr('generator::labels.modules.form.type')]) }}
             </div>
             <div class="col-lg-2">
-                <label class="control control--checkbox">
+                <div class="form-check form-check-inline">
                     <!-- For Delete Operation of CRUD -->
-                    {{ Form::checkbox('columns[x][nullable]', '1', false) }} {{ trans('generator::labels.modules.form.nullable') }}
+                    {{ Form::checkbox('columns[x][nullable]', '1', false, ['class' => 'form-check-input', 'id' => 'column_nullable_x']) }}
+                    <label class="form-check-label" for="column_nullable_x">{{ _tr('generator::labels.modules.form.nullable') }}</label>
                     <div class="control__indicator"></div>
-                </label>
+                </div>
             </div>
             <div class="col-lg-2">
-                {{ Form::text('columns[x][default]', null, ['class' => 'form-control default', 'placeholder' => trans('generator::labels.modules.form.default')]) }}
+                {{ Form::text('columns[x][default]', null, ['class' => 'form-control default', 'placeholder' => _tr('generator::labels.modules.form.default')]) }}
             </div>
             <div class="col-lg-2">
                 <a href="javascript:;" class="btn btn-danger btn-sm remove_column"><i class="fal fa-times"></i></a>
             </div>
         </div>
     </div>
-    <div class="form-group">
+    <div class="form-group mb-2">
         <div class="col-lg-2"></div>
         <div class="col-lg-10">
-            <a href="javascript:;" class="btn btn-info btn-md add_column"><i class="fal fa-plus"></i> {{trans('generator::labels.modules.form.add_column')}}</a>
+            <a href="javascript:;" class="btn btn-info btn-md add_column"><i class="fal fa-plus"></i> {{_tr('generator::labels.modules.form.add_column')}}</a>
         </div>
     </div>
     <!-- End Crud Operations -->
-    <div class="box-header text-center">
-        <hr width=60%/>
-        <h3 class="box-title"> {{trans('generator::labels.modules.form.optional')}} </h3>
-        <hr width=60%/>
+    <div class="box-header text-center mb-2">
+        <hr width=100%/>
+        <h3 class="box-title"> {{_tr('generator::labels.modules.form.optional')}} </h3>
+        <hr width=100%/>
     </div><!-- /.box-header -->
     <!-- Events --> 
-    <div class="events-div">
+    <div class="events-div mt-2">
         <div class="form-group event clearfix">
-            {{ Form::label('event[]', trans('generator::labels.modules.form.event'), ['class' => 'col-lg-2 control-label']) }}
+            {{ Form::label('event[]', _tr('generator::labels.modules.form.event'), ['class' => 'col-lg-2 control-label form-label mt-2']) }}
 
-            <div class="col-lg-6">
-                {{ Form::text('event[]', null, ['class' => 'form-control box-size', 'placeholder' => trans('generator::labels.modules.form.event'), 'style' => 'width:100%']) }}
+            <div class="col-lg-6 mb-2">
+                {{ Form::text('event[]', null, ['class' => 'form-control box-size', 'placeholder' => _tr('generator::labels.modules.form.event'), 'style' => 'width:100%']) }}
             </div><!--col-lg-10-->
-            <a href="#" class="btn btn-danger btn-md remove-field hidden">Remove Event</a>
-            <a href="#" class="btn btn-info btn-md add-field">Add Event</a>
+            <a href="#" class="btn btn-danger btn-md remove-field hidden"> {{_tr('remove_event')}}</a>
+            <a href="#" class="btn btn-info btn-md add-field">{{ _tr('add_event') }}</a>
         </div><!--form control-->
     </div>
 
@@ -134,8 +139,8 @@
     <!-- To Show the generated File -->
     <div class="box-body">
         <!--All Files -->
-        <div class="form-group">
-            <label class="col-lg-2 control-label">Files To Be Generated</label>
+        <div class="form-group mt-2">
+            <label class="col-lg-2 control-label form-label mt-2">{{ _tr('files_to_be_generated') }}</label>
             <div class="col-lg-10">
                 <textarea class="form-control box-size files" contenteditable="true" rows=15 readonly="">
                 </textarea>
@@ -155,7 +160,7 @@
     <!-- end Override Checkbox -->
 </div>
 @section("after-scripts")
-    {!! Html::script('public/js/backend/pluralize.js') !!}
+    <script src="{!! asset('public/js/backend/pluralize.js') !!}"></script>
     <script type="text/javascript">
         //When the DOM is ready to be manipulated
         $(document).ready(function(){
@@ -419,7 +424,8 @@
             var column = $("#column").html();
 
             column = column.replaceAll('[x]', '['+count+']');
-            
+            column = column.replaceAll('_x', '_'+count);
+
             column = '<div class="form-group column" data-count="'+count+'" >' + column + '</div>';
             $("#columns").append(column);   
         });

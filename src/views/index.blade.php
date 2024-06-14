@@ -7,16 +7,16 @@
 @endsection
 
 @section('content')
-    <div class="box box-info">
-        <div class="box-header with-border">
-            <h3 class="box-title">{{ trans('labels.backend.modules.management') }}</h3>
+    <div class="card card-info">
+        <div class="card-header with-border">
+            <h3 class="card-title">{{ trans('labels.backend.modules.management') }}</h3>
 
-            <div class="box-tools pull-right">
+            <div class="card-tools float-end">
                 @include('generator::partials.modules-header-buttons')
             </div>
         </div><!-- /.box-header -->
 
-        <div class="box-body">
+        <div class="card-body">
             <div class="table-responsive data-table-wrapper">
                 <table id="modules-table" class="table table-condensed table-hover table-bordered">
                     <thead>
@@ -30,20 +30,17 @@
                     <thead class="transparent-bg">
                         <tr>
                             <th>
-                                {!! Form::text('name', null, ["class" => "search-input-text form-control", "data-column" => 0, "placeholder" => trans('labels.backend.modules.table.name')]) !!}
-                                <a class="reset-data" href="javascript:void(0)"><i class="fal fa-times"></i></a>
+                                {!! Form::search('name', null, ["class" => "search-input-text form-control", "data-column" => 0, "placeholder" => trans('labels.backend.modules.table.name')]) !!}
+
                             </th>
                             <th>
-                                {!! Form::text('permission', null, ["class" => "search-input-text form-control", "data-column" => 1, "placeholder" => trans('labels.backend.modules.table.view_permission_id')]) !!}
-                                <a class="reset-data" href="javascript:void(0)"><i class="fal fa-times"></i></a>
+                                {!! Form::search('permission', null, ["class" => "search-input-text form-control", "data-column" => 1, "placeholder" => trans('labels.backend.modules.table.view_permission_id')]) !!}
                             </th>
                             <th>
-                                {!! Form::text('route', null, ["class" => "search-input-text form-control", "data-column" => 2, "placeholder" => trans('labels.backend.modules.table.url')]) !!}
-                                <a class="reset-data" href="javascript:void(0)"><i class="fal fa-times"></i></a>
+                                {!! Form::search('route', null, ["class" => "search-input-text form-control", "data-column" => 2, "placeholder" => trans('labels.backend.modules.table.url')]) !!}
                             </th>
                             <th>
-                                {!! Form::text('created_by', null, ["class" => "search-input-text form-control", "data-column" => 3, "placeholder" => trans('labels.backend.modules.table.created_by')]) !!}
-                                <a class="reset-data" href="javascript:void(0)"><i class="fal fa-times"></i></a>
+                                {!! Form::search('created_by', null, ["class" => "search-input-text form-control", "data-column" => 3, "placeholder" => trans('labels.backend.modules.table.created_by')]) !!}
                             </th>
                         </tr>
                     </thead>
@@ -59,7 +56,7 @@
                 <button class="btn btn-box-tool" data-widget="collapse"><i class="fal fa-minus"></i></button>
             </div><!-- /.box tools -->
         </div><!-- /.box-header -->
-        <div class="box-body">
+        <div class="card-body">
             {{-- {!! history()->renderType('Blog') !!} --}}
         </div><!-- /.box-body -->
     </div><!--box box-success-->
@@ -79,6 +76,7 @@
             var dataTable = $('#modules-table').dataTable({
                 processing: true,
                 serverSide: true,
+                bAutoWidth: false,
                 ajax: {
                     url: '{{ route("admin.modules.get") }}',
                     type: 'post'
