@@ -1,6 +1,6 @@
-<div class="box-body">
+<div class="card-body">
         all_form_stuff
-</div><!--box-body-->
+</div><!--card-body-->
 
 @section("after-scripts")
     <script type="text/javascript">

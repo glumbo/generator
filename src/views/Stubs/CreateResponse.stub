@@ -18,6 +18,6 @@ class CreateResponse implements Responsable
     {
         all_relations
         
-        return view('backend.dummy_small_plural_model.create',compact(compact_relations_array));
+        return view('backend.dummy_small_plural_model.create',compact_relations_array);
     }
 }

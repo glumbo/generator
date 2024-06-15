@@ -566,7 +566,7 @@ class Generator
                 'dummy_small_plural_model' => strtolower(Str::plural($this->model)),
                 'all_model_paths' => $this->all_model_paths,
                 'all_relations' => $this->all_relations,
-                'compact_relations_array' => $this->compact_relations_array,
+                'compact_relations_array' => 'compact('.$this->compact_relations_array.')',
                 'relation_small_plural' => $this->model_namespace,
             ], lcfirst($this->create_response_namespace));
         }
@@ -579,7 +579,7 @@ class Generator
                 'dummy_small_plural_model' => strtolower(Str::plural($this->model)),
                 'all_model_paths' => $this->all_model_paths,
                 'all_relations' => $this->all_relations,
-                'compact_relations_array' => $this->compact_relations_array,
+                'compact_relations_array' => 'compact('.$this->compact_relations_array.')',
                 'relation_small_plural' => $this->model_namespace,
             ], lcfirst($this->edit_response_namespace));
         }
@@ -1148,153 +1148,70 @@ class Generator
         switch ($type) {
             case '0':
                 return $this->getFormElementNumber($name,$nullable);
-                break;
             case '1':
                 return $this->getFormElementString($name,$nullable);
-                break;
             case '2':
                 return $this->getFormElementText($name,$nullable);
-                break;
             case '3':
                 return $this->getFormElementDecimal($name,$nullable);
-                break;
             case '4':
                 return $this->getFormElementTimestamp($name,$nullable);
-                break;
             case '5':
-                return $this->getFormElementFile($name,$nullable);
-                break;
+                return $this->getFormElementImage($name,$nullable);
             case '6':
                 return $this->getFormElementSelect($name,$nullable,$relation);
-                break;
+            case '7':
+                return $this->getFormElementMultipleSelect($name,$nullable,$relation);
             
             default:
                 return $this->getFormElementString($name,$nullable);
-                break;
         }
     }
     public function getFormElementNumber($name,$nullable){
-        $model_small_plural = Str::plural(strtolower($this->model));
         return 
-        '<div class="form-group {{ ($errors->has(\''.$name.'\') ? \' has-error\' : \'\') }}">
-            {{ Form::label(\''.$name.'\', _tr(\'labels.backend.'.$model_small_plural.'.table.'.$name.'\'), [\'class\' => \'col-lg-2 control-label '.($nullable ? '' : 'required') .'\']) }}
-            <div class="col-lg-10">
-                {{ Form::number(\''.$name.'\', null, [\'class\' => \'form-control box-size\', \'placeholder\' => _tr(\'labels.backend.'.$model_small_plural.'.table.'.$name.'\'), '.($nullable ? '' : '\'required\' => \'required\'').']) }}
-                @if ($errors->has(\''.$name.'\'))
-                    <span class="help-block">
-                        <strong>{{ $errors->first(\''.$name.'\') }}</strong>
-                    </span>
-                @endif
-            </div><!--col-lg-10-->
-        </div><!--form-group-->';
+        '<x-backend.input-number :name="\''.$name.'\'" '.($nullable ? '' : 'required="1"').'></x-backend.input-number>';
     }
 
     public function getFormElementString($name,$nullable){
-        $model_small_plural = Str::plural(strtolower($this->model));
-        return 
-        '<div class="form-group {{ $errors->has(\''.$name.'\') ? \' has-error\' : \'\' }}">
-            {{ Form::label(\''.$name.'\', _tr(\'labels.backend.'.$model_small_plural.'.table.'.$name.'\'), [\'class\' => \'col-lg-2 control-label '.($nullable ? '' : 'required') .'\']) }}
-            <div class="col-lg-10">
-                {{ Form::text(\''.$name.'\', null, [\'class\' => \'form-control box-size\', \'placeholder\' => _tr(\'labels.backend.'.$model_small_plural.'.table.'.$name.'\'), '.($nullable ? '' : '\'required\' => \'required\'').']) }}
-                @if ($errors->has(\''.$name.'\'))
-                    <span class="help-block">
-                        <strong>{{ $errors->first(\''.$name.'\') }}</strong>
-                    </span>
-                @endif
-            </div><!--col-lg-10-->
-        </div><!--form-group-->';
+        return
+            '<x-backend.input-text :name="\''.$name.'\'" '.($nullable ? '' : 'required="1"').'></x-backend.input-number>';
     }
     public function getFormElementText($name,$nullable){
-        $model_small_plural = Str::plural(strtolower($this->model));
-        return 
-            '<div class="form-group {{ $errors->has(\''.$name.'\') ? \' has-error\' : \'\' }}">
-                {{ Form::label(\''.$name.'\', _tr(\'labels.backend.'.$model_small_plural.'.table.'.$name.'\'), [\'class\' => \'col-lg-2 control-label '.($nullable ? '' : 'required') .'\']) }}
-                <div class="col-lg-10 mce-box">
-                    {{ Form::textarea(\''.$name.'\', null,[\'class\' => \'form-control\', \'placeholder\' => _tr(\'labels.backend.'.$model_small_plural.'.table.'.$name.'\'), '.($nullable ? '' : '\'required\' => \'required\'').']) }}
-                    @if ($errors->has(\''.$name.'\'))
-                        <span class="help-block">
-                            <strong>{{ $errors->first(\''.$name.'\') }}</strong>
-                        </span>
-                    @endif
-                </div><!--col-lg-3-->
-            </div><!--form control-->';
+        return
+            '<x-backend.text-area-editor :name="\''.$name.'\'" '.($nullable ? '' : 'required="1"').'></x-backend.input-number>';
     }
 
     public function getFormElementDecimal($name,$nullable){
-        $model_small_plural = Str::plural(strtolower($this->model));
-        return 
-            '<div class="form-group {{ $errors->has(\''.$name.'\') ? \' has-error\' : \'\' }}">
-                {{ Form::label(\''.$name.'\', _tr(\'labels.backend.'.$model_small_plural.'.table.'.$name.'\'), [\'class\' => \'col-lg-2 control-label '.($nullable ? '' : 'required') .'\']) }}
-                <div class="col-lg-10">
-                    {{ Form::number(\''.$name.'\', null, [\'class\' => \'form-control box-size\', \'placeholder\' => _tr(\'labels.backend.'.$model_small_plural.'.table.'.$name.'\'), \'step\' => \'0.01\' ,'.($nullable ? '' : '\'required\' => \'required\'').']) }}
-                    @if ($errors->has(\''.$name.'\'))
-                        <span class="help-block">
-                            <strong>{{ $errors->first(\''.$name.'\') }}</strong>
-                        </span>
-                    @endif
-                </div><!--col-lg-10-->
-            </div><!--form-group-->';
+        return
+            '<x-backend.input-number :name="\''.$name.'\'" '.($nullable ? '' : 'required="1"').' step="0.01"></x-backend.input-number>';;
     }
 
     public function getFormElementTimestamp($name,$nullable){
-        $model_small_plural = Str::plural(strtolower($this->model));
-        return 
-            '<div class="form-group {{ $errors->has(\''.$name.'\') ? \' has-error\' : \'\' }}">
-                {{ Form::label(\''.$name.'\', _tr(\'labels.backend.'.$model_small_plural.'.table.'.$name.'\'), [\'class\' => \'col-lg-2 control-label '.($nullable ? '' : 'required') .'\']) }}
-                <div class="col-lg-10">
-                    {{ Form::text(\''.$name.'\', null, [\'class\' => \'form-control datetimepicker1 box-size\', \'id\' => \'datetimepicker1\', \'placeholder\' => _tr(\'labels.backend.'.$model_small_plural.'.table.'.$name.'\'), '.($nullable ? '' : '\'required\' => \'required\'').']) }}
-                    @if ($errors->has(\''.$name.'\'))
-                        <span class="help-block">
-                            <strong>{{ $errors->first(\''.$name.'\') }}</strong>
-                        </span>
-                    @endif
-                </div><!--col-lg-10-->
-            </div><!--form-group-->';
+        return
+            '<x-backend.date-time :name="\''.$name.'\'" '.($nullable ? '' : 'required="1"').'></x-backend.input-number>';;
     }
     public function getFormElementFile($name,$nullable){
         $model_small_plural = Str::plural(strtolower($this->model));
-        return 
-            '<div class="form-group {{ $errors->has(\''.$name.'\') ? \' has-error\' : \'\' }}">
-                {{ Form::label(\''.$name.'\', _tr(\'labels.backend.'.$model_small_plural.'.table.'.$name.'\'), [\'class\' => \'col-lg-2 control-label\']) }}
-                @if(!empty($'.$model_small_plural.'->'.$name.'))
-                    <div class="col-lg-1 file_show">
-                        <img src="{{ Storage::disk(\'public\')->url($'.$model_small_plural.'->'.$name.') }}" height="80" width="80">
-                        <i class="fal fa-times remove_file"></i>
-                    </div>
-                    <div class="col-lg-5">
-                        <div class="custom-file-input">
-                            <input type="file" name="'.$name.'" id="file-1" class="inputfile inputfile-1" data-multiple-caption="{count} files selected" />
-                            <label for="file-1"><i class="fal fa-upload"></i><span>Choose a file</span></label>
-                            <input type="hidden" name="remove_file" id="remove_file" value="0" />
-                        </div>
-                    </div>
-                @else
-                    <div class="col-lg-5">
-                        <div class="custom-file-input">
-                                <input type="file" name="'.$name.'" id="file-1" class="inputfile inputfile-1" data-multiple-caption="{count} files selected" '.($nullable ? '' : 'required') .'/>
-                                <label for="file-1" class="'.($nullable ? '' : 'required').'"><i class="fal fa-upload"></i><span>Choose a file</span></label>
-                        </div>
-                    </div>
-                @endif
-            </div><!--form control-->';
+        return
+            '<x-backend.file :name="\''.$name.'\'" '.($nullable ? '' : 'required="1"').' :module="'.('$'.$model_small_plural).'"></x-backend.image>';
+    }
+
+    public function getFormElementImage($name,$nullable){
+        $model_small_plural = Str::plural(strtolower($this->model));
+        return
+            '<x-backend.image :name="\''.$name.'\'" '.($nullable ? '' : 'required="1"').' :module="'.('$'.$model_small_plural).'"></x-backend.image>';
     }
     public function getFormElementSelect($name,$nullable,$relation){
-        $model_small_plural = Str::plural(strtolower($this->model));
         $relation_small_plural = Str::plural(strtolower($relation));
         return 
-            '@if($'.$relation_small_plural.'->count()>0)
-                <div class="form-group {{ $errors->has(\''.$name.'\') ? \' has-error\' : \'\' }}">
-                    {{ Form::label(\''.$name.'\', _tr(\'labels.backend.'.$model_small_plural.'.table.'.$name.'\'), [\'class\' => \'col-lg-2 control-label\']) }}
-                    <div class="col-lg-10">
-                    {{ Form::select(\''.$name.'\', $'.$relation_small_plural.', null, [\'class\' => \'form-control select2 status box-size\', \'placeholder\' => _tr(\'labels.backend.'.$model_small_plural.'.table.'.$name.'\')]) }}
-                    @if ($errors->has(\''.$name.'\'))
-                            <span class="help-block">
-                                <strong>{{ $errors->first(\''.$name.'\') }}</strong>
-                            </span>
-                        @endif
-                    </div><!--col-lg-3-->
-                </div><!--form control-->
-            @endif';
+            '<x-backend.select-box :name="\''.$name.'\'" '.($nullable ? '' : 'required="1"').' :options="$'.$relation_small_plural.'"></x-backend.select-box>';
+    }
+
+    public function getFormElementMultipleSelect($name,$nullable,$relation){
+        $relation_small_plural = Str::plural(strtolower($relation));
+        $selected_relation_small_plural = '$selected'.$relation_small_plural;
+        return
+            '<x-backend.multiple-select :name="\''.$name.'\'" '.($nullable ? '' : 'required="1"').' :options="$'.$relation_small_plural.'" :selected="'.$selected_relation_small_plural.'"></x-backend.select-box>';
     }
 
     public function setResponses()
@@ -1310,7 +1227,7 @@ class Generator
                 $relation_plural = Str::plural($relation);
                 $all_model_paths .= 'use App\Models\\'.$relation_plural.'\\'.$relation.";\n";
                 $compact_relations_array .= "'".$relation_small_plural."', ";
-                $all_relations .= '$'.$relation_small_plural.'=collect('.$relation.'::all()->toArray())->mapWithKeys(function ($item) {
+                $all_relations .= '$'.$relation_small_plural.'= collect('.$relation.'::all()->toArray())->mapWithKeys(function ($item) {
                     return [$item[\'id\'] => $item[\'name\']];
                 });';
             }

@@ -12,7 +12,9 @@
             <h3 class="box-title">{{ trans('labels.backend.dummy_small_plural_model.management') }}</h3>
 
             <div class="box-tools pull-right">
-                @include('backend.dummy_small_plural_model.partials.dummy_small_plural_model-header-buttons')
+                {{ -- @include('backend.dummy_small_plural_model.partials.dummy_small_plural_model-header-buttons') -- }}
+                <x-backend.export-button></x-backend.export-button>
+                <x-backend.action-button></x-backend.action-button>
             </div>
         </div><!--box-header with-border-->
 
