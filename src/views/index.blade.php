@@ -1,15 +1,15 @@
 @extends ('backend.layouts.app')
 
-@section ('title', trans('labels.backend.modules.management'))
+@section ('title', _tr('labels.backend.modules.management'))
 
 @section('page-header')
-    <h1>{{ trans('labels.backend.modules.management') }}</h1>
+    <h1>{{ _tr('labels.backend.modules.management') }}</h1>
 @endsection
 
 @section('content')
     <div class="card card-info">
         <div class="card-header with-border">
-            <h3 class="card-title">{{ trans('labels.backend.modules.management') }}</h3>
+            <h3 class="card-title">{{ _tr('labels.backend.modules.management') }}</h3>
 
             <div class="card-tools float-end">
                 @include('generator::partials.modules-header-buttons')
@@ -21,27 +21,29 @@
                 <table id="modules-table" class="table table-condensed table-hover table-bordered">
                     <thead>
                         <tr>
-                            <th>{{ trans('labels.backend.modules.table.name') }}</th>
-                            <th>{{ trans('labels.backend.modules.table.view_permission_id') }}</th>
-                            <th>{{ trans('labels.backend.modules.table.url') }}</th>
-                            <th>{{ trans('labels.backend.modules.table.created_by') }}</th>
+                            <th>{{ _tr('labels.backend.modules.table.name') }}</th>
+                            <th>{{ _tr('labels.backend.modules.table.view_permission_id') }}</th>
+                            <th>{{ _tr('labels.backend.modules.table.url') }}</th>
+                            <th>{{ _tr('labels.backend.modules.table.created_by') }}</th>
+                            <th>{{ _tr('labels.backend.modules.table.actions') }}</th>
                         </tr>
                     </thead>
                     <thead class="transparent-bg">
                         <tr>
                             <th>
-                                {!! Form::search('name', null, ["class" => "search-input-text form-control", "data-column" => 0, "placeholder" => trans('labels.backend.modules.table.name')]) !!}
+                                {!! Form::search('name', null, ["class" => "search-input-text form-control", "data-column" => 0, "placeholder" => _tr('labels.backend.modules.table.name')]) !!}
 
                             </th>
                             <th>
-                                {!! Form::search('permission', null, ["class" => "search-input-text form-control", "data-column" => 1, "placeholder" => trans('labels.backend.modules.table.view_permission_id')]) !!}
+                                {!! Form::search('permission', null, ["class" => "search-input-text form-control", "data-column" => 1, "placeholder" => _tr('labels.backend.modules.table.view_permission_id')]) !!}
                             </th>
                             <th>
-                                {!! Form::search('route', null, ["class" => "search-input-text form-control", "data-column" => 2, "placeholder" => trans('labels.backend.modules.table.url')]) !!}
+                                {!! Form::search('route', null, ["class" => "search-input-text form-control", "data-column" => 2, "placeholder" => _tr('labels.backend.modules.table.url')]) !!}
                             </th>
                             <th>
-                                {!! Form::search('created_by', null, ["class" => "search-input-text form-control", "data-column" => 3, "placeholder" => trans('labels.backend.modules.table.created_by')]) !!}
+                                {!! Form::search('created_by', null, ["class" => "search-input-text form-control", "data-column" => 3, "placeholder" => _tr('labels.backend.modules.table.created_by')]) !!}
                             </th>
+                            <th></th>
                         </tr>
                     </thead>
                 </table>
@@ -51,7 +53,7 @@
 
     <!--<div class="box box-info">
         <div class="box-header with-border">
-            <h3 class="box-title">{{ trans('history.backend.recent_history') }}</h3>
+            <h3 class="box-title">{{ _tr('history.backend.recent_history') }}</h3>
             <div class="box-tools pull-right">
                 <button class="btn btn-box-tool" data-widget="collapse"><i class="fal fa-minus"></i></button>
             </div><!-- /.box tools -->
@@ -85,7 +87,8 @@
                     {data: 'name', name: '{{config('module.table')}}.name'},
                     {data: 'view_permission_id', name: '{{config('module.table')}}.view_permission_id'},
                     {data: 'url', name: '{{config('module.table')}}.url'},
-                    {data: 'created_by', name: '{{config('access.users_table')}}.first_name'}
+                    {data: 'created_by', name: '{{config('access.users_table')}}.first_name'},
+                    {data: 'actions', name: '{{config('module.table')}}.actions',searchable: false, sortable: false}
                 ],
                 order: [[0, "asc"]],
                 searchDelay: 500,

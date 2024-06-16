@@ -39,6 +39,29 @@ if (!function_exists('add_key_value_in_file')) {
         file_put_contents($file_name, $file_contents_new);
     }
 }
+if (!function_exists('remove_key_value_in_file')) {
+    function remove_key_value_in_file($file_name, $model_plural_key, $parent_keys = null)
+    {
+        $file_array = eval(str_replace('<?php', '', str_replace('?>', '', @file_get_contents($file_name))));
+
+        if(!empty($parent_keys)){
+            if (isset($file_array[$parent_keys][$model_plural_key])) {
+                unset($file_array[$parent_keys][$model_plural_key]);
+            }
+        }else{
+            if (isset($file_array[$model_plural_key])) {
+                unset($file_array[$model_plural_key]);
+            }
+        }
+
+
+        $file_contents_new = "<?php\nreturn [\n";
+        $file_contents_new .= get_array_contents($file_array);
+        $file_contents_new .= '];';
+
+        file_put_contents($file_name, $file_contents_new);
+    }
+}
 
 
 if (!function_exists('get_array_contents')) {

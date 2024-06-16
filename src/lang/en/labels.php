@@ -11,6 +11,7 @@ return [
             "url" => "Module View Route",
             "view_permission_id" => "View Permission",
             "created_by" => "Created By",
+            "actions" => "Actions",
         ],
         "form" => [
             "name" => "Module Name",

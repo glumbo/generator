@@ -34,6 +34,9 @@ class ModuleTableController extends Controller
             ->addColumn('created_by', function ($module) {
                 return $module->created_by;
             })
+            ->addColumn('actions', function ($module) {
+                return $module->action_buttons;
+            })
             ->make(true);
     }
 }

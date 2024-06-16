@@ -3,6 +3,7 @@
 namespace Glumbo\Generator\Controllers;
 
 use Illuminate\Filesystem\Filesystem;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
@@ -145,6 +146,7 @@ class Generator
      */
     protected $repository;
     protected $repo_namespace = 'App\\Repositories\\';
+    protected $breadcrumbs_namespace = 'App\\Http\\Breadcrumbs\\Backend';
 
     /**
      * Table Name.
@@ -959,6 +961,137 @@ class Generator
             }
         }
     }
+    public function deleteAllFiles(){
+        $this->deleteMigration();
+        $this->deleteModel();
+        $this->deleteRequests();
+        $this->deleteResponses();
+        $this->deleteRepository();
+        $this->deleteControllers();
+        $this->deleteRouteFiles();
+        $this->deleteBreadCrumb();
+        $this->deleteViewFiles();
+        $this->deleteEvents();
+        $this->removeLanguageFiles();
+    }
+
+    public function deleteMigration(){
+        $path = escapeSlashes(strtolower(($this->migration_path)));
+        $dummy_small_plural_model = Str::plural(strtolower($this->model));
+        $migration_path = '_create_'.$dummy_small_plural_model.'_table';
+
+        $files = File::allFiles($path);
+        $files = array_filter($files, function ($file) use ($migration_path) {
+            return (strpos($file->getFilename(), $migration_path) > 0);
+        });
+        foreach ($files as $file){
+            if(File::exists($file->getRealPath())){
+                File::delete($file);
+            }
+        }
+    }
+    public function deleteModel(){
+        $model_namespace = $this->removeFileNameFromEndOfNamespace($this->model_namespace);
+        if(File::isDirectory($model_namespace)){
+            File::deleteDirectory($model_namespace);
+        }
+    }
+    public function deleteRequests(){
+        $request_namespace = ucfirst($this->removeFileNameFromEndOfNamespace($this->manage_request_namespace));
+        if(File::isDirectory($request_namespace)){
+            File::deleteDirectory($request_namespace);
+        }
+    }
+    public function deleteResponses(){
+        $responses_namespace = ucfirst($this->removeFileNameFromEndOfNamespace($this->create_response_namespace));
+        if(File::isDirectory($responses_namespace)){
+            File::deleteDirectory($responses_namespace);
+        }
+    }
+    public function deleteRepository(){
+        $repo_namespace = ucfirst($this->removeFileNameFromEndOfNamespace($this->repo_namespace));
+        if(File::isDirectory($repo_namespace)){
+            File::deleteDirectory($repo_namespace);
+        }
+    }
+    public function deleteControllers(){
+        $controller_namespace = ucfirst($this->removeFileNameFromEndOfNamespace($this->controller_namespace));
+        if(File::isDirectory($controller_namespace)){
+            File::deleteDirectory($controller_namespace);
+        }
+    }
+    public function deleteRouteFiles(){
+        $path = ucfirst($this->removeFileNameFromEndOfNamespace($this->route_path));
+        $files = File::allFiles($path);
+        $files = array_filter($files, function ($file) {
+            return (strpos($file->getFilename(), $this->model) !== false);
+        });
+        foreach ($files as $file){
+            if(File::exists($file->getRealPath())){
+                File::delete($file);
+            }
+        }
+    }
+    public function deleteBreadCrumb(){
+        $breadcrumb_path = ucfirst($this->removeFileNameFromEndOfNamespace($this->breadcrumbs_namespace));
+        $files = File::allFiles($breadcrumb_path);
+        $files = array_filter($files, function ($file) {
+            return (strpos($file->getFilename(), $this->model) !== false);
+        });
+        foreach ($files as $file){
+            if(File::exists($file->getRealPath())){
+                File::delete($file);
+            }
+        }
+        $breadcrumb_backend_path = $breadcrumb_path.'\Backend\Backend.php';
+        if(File::exists($breadcrumb_backend_path)){
+            $fileContents = File::get($breadcrumb_backend_path);
+
+            // Dosya içeriğini satır satır diziye dönüştür
+            $lines = explode(PHP_EOL, $fileContents);
+
+            // $variable değişkeninin değerini içeren satırları filtrele
+            $filteredLines = array_filter($lines, function ($line) {
+                return stripos($line, $this->model) === false;
+            });
+            // Filtrelenmiş satırları birleştir
+            $newContent = implode(PHP_EOL, $filteredLines);
+
+            // Yeni içeriği dosyaya yaz
+            File::put($breadcrumb_backend_path, $newContent);
+        }
+    }
+    public function deleteViewFiles(){
+        $view_path = $path = escapeSlashes(strtolower(Str::plural($this->view_path)));
+        if(File::isDirectory($view_path)){
+            File::deleteDirectory($view_path);
+        }
+    }
+    public function deleteEvents(){
+        $event_namespace = escapeSlashes('App\\Events\\'.$this->event_namespace.DIRECTORY_SEPARATOR);
+        $listener_namespace = escapeSlashes('App\\Listeners\\'.$this->event_namespace.DIRECTORY_SEPARATOR);
+        if(File::isDirectory($event_namespace)){
+            File::deleteDirectory($event_namespace);
+        }
+        if(File::isDirectory($listener_namespace)){
+            File::deleteDirectory($listener_namespace);
+        }
+    }
+    public function removeLanguageFiles(){
+        //Path to that language files
+        $path = resource_path('lang'.DIRECTORY_SEPARATOR.'en');
+        //Model Plural key
+        $model_plural_key = strtolower(Str::plural($this->model));
+
+        //Pushing values to labels
+        remove_key_value_in_file($path.'/labels.php', $model_plural_key, 'backend');
+        remove_key_value_in_file($path.'/menus.php', $model_plural_key, 'backend');
+        remove_key_value_in_file(config_path('module.php'), $model_plural_key);
+        remove_key_value_in_file($path.'/exceptions.php', $model_plural_key, 'backend');
+        remove_key_value_in_file($path.'/alerts.php', $model_plural_key, 'backend');
+    }
+
+
 
     /**
      * Generating the file by

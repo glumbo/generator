@@ -80,18 +80,18 @@
     <div id="columns">
 
     </div>
-    <div id="column" class="form-group hidden mb-2">
+    <div id="column" class="form-group d-none mb-2">
         <div class="col-lg-2 control-label">
             {{ Form::label('operations', _tr('generator::labels.modules.form.column'), ['class' => 'control-label form-label mt-2']) }}
         </div>
         <div class="row">
-            <div class="col-lg-3">
+            <div class="col-lg-3 mb-1">
                 {{ Form::text('columns[x][name]', null, ['class' => 'form-control', 'placeholder' => 'e.g., name']) }}
             </div>
-            <div class="col-lg-2">
-                {{ Form::select('columns[x][type]', ["Integer", "String", "Text", "Decimal", "Timestamp", "File", "Select"], null, ['class' => 'form-control select2 status type', 'placeholder' => _tr('generator::labels.modules.form.type')]) }}
+            <div class="col-lg-2 mb-1">
+                {{ Form::select('columns[x][type]', ["Integer", "String", "Text", "Decimal", "Timestamp", "File", "Select"], null, ['class' => 'form-control status type', 'placeholder' => _tr('generator::labels.modules.form.type')]) }}
             </div>
-            <div class="col-lg-2">
+            <div class="col-lg-2 mb-1">
                 <div class="form-check form-check-inline">
                     <!-- For Delete Operation of CRUD -->
                     {{ Form::checkbox('columns[x][nullable]', '1', false, ['class' => 'form-check-input', 'id' => 'column_nullable_x']) }}
@@ -99,7 +99,7 @@
                     <div class="control__indicator"></div>
                 </div>
             </div>
-            <div class="col-lg-2">
+            <div class="col-lg-2 mb-1">
                 {{ Form::text('columns[x][default]', null, ['class' => 'form-control default', 'placeholder' => _tr('generator::labels.modules.form.default')]) }}
             </div>
             <div class="col-lg-2">
@@ -107,7 +107,7 @@
             </div>
         </div>
     </div>
-    <div class="form-group mb-2">
+    <div class="form-group mb-2 mt-2">
         <div class="col-lg-2"></div>
         <div class="col-lg-10">
             <a href="javascript:;" class="btn btn-info btn-md add_column"><i class="fal fa-plus"></i> {{_tr('generator::labels.modules.form.add_column')}}</a>
@@ -127,7 +127,7 @@
             <div class="col-lg-6 mb-2">
                 {{ Form::text('event[]', null, ['class' => 'form-control box-size', 'placeholder' => _tr('generator::labels.modules.form.event'), 'style' => 'width:100%']) }}
             </div><!--col-lg-10-->
-            <a href="#" class="btn btn-danger btn-md remove-field hidden"> {{_tr('remove_event')}}</a>
+            <a href="#" class="btn btn-danger btn-md remove-field d-none"> {{_tr('remove_event')}}</a>
             <a href="#" class="btn btn-info btn-md add-field">{{ _tr('add_event') }}</a>
         </div><!--form control-->
     </div>
@@ -142,8 +142,7 @@
         <div class="form-group mt-2">
             <label class="col-lg-2 control-label form-label mt-2">{{ _tr('files_to_be_generated') }}</label>
             <div class="col-lg-10">
-                <textarea class="form-control box-size files" contenteditable="true" rows=15 readonly="">
-                </textarea>
+                <textarea class="form-control box-size files" contenteditable="true" rows=15 readonly="" disabled></textarea>
             </div>
         </div>
         <!-- All Files -->
@@ -159,6 +158,16 @@
     </div>
     <!-- end Override Checkbox -->
 </div>
+@section("after-styles")
+    <style>
+        .form-check-inline{
+            margin-top: 0!important;
+        }
+        .form-check .form-check-input{
+            padding: 15px!important;
+        }
+    </style>
+@endsection
 @section("after-scripts")
     <script src="{!! asset('public/js/backend/pluralize.js') !!}"></script>
     <script type="text/javascript">
@@ -182,7 +191,7 @@
             $(document).on('click', ".add-field", function(e){
                 e.preventDefault();
                 clone = $(".event").first().clone();
-                clone.find(".remove-field").removeClass('hidden');
+                clone.find(".remove-field").removeClass('d-none');
                 clone.appendTo(".events-div");
             });
             //remove field in event panel
@@ -374,10 +383,10 @@
                 $("."+checkbox.attr('name')+"-messages").empty();
             }
             if(checkboxValue) {
-                element.removeClass('hidden', 3000);
+                element.removeClass('d-none', 3000);
             }
             else {
-                element.addClass('hidden', 3000);
+                element.addClass('d-none', 3000);
             }
 
             //calling required field handler functions
@@ -419,7 +428,7 @@
                $(this).val(val.replace(/[^a-zA-Z]/g, ''));
             }
         });
-        $(".add_column").on("click", function(){
+        $('body').on("click", ".add_column", function(){
             var count = $("#columns").find(".column").length;
             var column = $("#column").html();
 
@@ -427,14 +436,16 @@
             column = column.replaceAll('_x', '_'+count);
 
             column = '<div class="form-group column" data-count="'+count+'" >' + column + '</div>';
-            $("#columns").append(column);   
+            $("#columns").append(column);
         });
         $('body').on("click","a.remove_column", function(){
             var column = $(this).closest(".column");
-            column.remove();
+            let e = column.remove();
         });
+
         $('body').on("change", "select.type", function () {
             var column = $(this).closest(".column");
+
             var count = column.data('count');
             if($(this).val() == 6){
                 column.find(".default").attr("name","columns["+count+"][relation]").attr("placeholder","Relation");

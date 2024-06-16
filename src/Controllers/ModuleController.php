@@ -2,6 +2,7 @@
 
 namespace Glumbo\Generator\Controllers;
 
+use Glumbo\Generator\Module;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Access\Permission\Permission;
@@ -76,7 +77,7 @@ class ModuleController extends Controller
         $this->generator->createEvents();
         
         // Creating the Module
-        $this->repository->create($request->all(), $this->generator->getPermissions());
+        $this->repository->create($request->except(['_token']), $this->generator->getPermissions());
 
         return redirect()->route('admin.modules.index')->withFlashSuccess('Module Generated Successfully!');
     }
@@ -207,5 +208,19 @@ class ModuleController extends Controller
                 'message' => 'Please provide some value',
             ]);
         }
+    }
+    public function destroy(Request $request, Module $module)
+    {
+        if(empty($module->module))
+        {
+            return redirect()->route('admin.modules.index')->withFlashDanger('This Module Can Not Delete!');
+        }
+        $this->generator->initialize(json_decode($module->module, true));
+        //Deleting all files
+        $this->generator->deleteAllFiles();
+
+        // Delete the Module
+        $this->repository->delete($module, $this->generator->getPermissions());
+        return redirect()->route('admin.modules.index')->withFlashSuccess('Module Deleted Successfully!');
     }
 }

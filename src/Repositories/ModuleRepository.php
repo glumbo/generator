@@ -64,6 +64,7 @@ class ModuleRepository extends BaseRepository
                 'view_permission_id' => "view-$model-permission",
                 'name'               => $input['name'],
                 'url'                => 'admin.'.Str::plural($model).'.index',
+                'module'             => json_encode($input),
                 'created_by'         => access()->user()->id,
             ];
 
@@ -75,5 +76,30 @@ class ModuleRepository extends BaseRepository
         }
 
         throw new GeneralException('There was some error in creating the Module. Please Try Again.');
+    }
+
+    /**
+     * @param array $input
+     *
+     * @throws GeneralException
+     *
+     * @return bool
+     */
+    public function delete(Module $module, array $permissions)
+    {
+        if ($module) {
+            // Delete data
+            Module::destroy($module->id);
+
+            foreach ($permissions as $permission) {
+                $per = Permission::whereName($permission)->delete();
+            }
+
+            return true;
+        } else {
+            return $module;
+        }
+
+        throw new GeneralException('There was some error in deleting the Module. Please Try Again.');
     }
 }
