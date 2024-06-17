@@ -1,0 +1,20 @@
+<?php
+
+namespace DummyNamespace;
+
+use App\Http\Resources\MainResources;
+
+class DummyResourceName extends MainResources
+{
+    /**
+         * Transform the resource into an array.
+         *
+         * @param  \Illuminate\Http\Request
+         *
+         * @return array
+         */
+        public function toArray($request)
+        {
+            return resource_array;
+        }
+}

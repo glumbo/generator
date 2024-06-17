@@ -1,0 +1,146 @@
+<?php
+
+namespace DummyNamespace;
+
+use DummyResourceNamespace;
+use DummyModelNamespace;
+use DummyRepositoryNamespace;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+
+/**
+ * DummyController
+ */
+class DummyController extends APIController
+{
+    /**
+     * __construct.
+     *
+     * @var dummy_repository
+     * @param $repository
+     */
+    protected $repository;
+
+    /**
+     * contructor to initialize repository object
+     * @param dummy_repository $repository;
+     */
+    public function __construct(dummy_repository $repository)
+    {
+        $this->repository = $repository;
+    }
+
+    /**
+     * Return the $DummyArgumentName.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function index(Request $request)
+    {
+        $limit = $request->get('paginate') ?? 25;
+        $orderBy = $request->get('orderBy') ?? 'ASC';
+        $sortBy = $request->get('sortBy') ?? 'created_at';
+        return DummyResource::collection(
+            $this->repository->getForDataTable()->orderBy($sortBy, $orderBy)->paginate($limit)->appends(request()->query())
+        );
+    }
+    /**
+     * Return the specified resource.
+     *
+     * @param DummyModel $DummyArgumentName
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function show(DummyModel $DummyArgumentName)
+    {
+        return new DummyResource($DummyArgumentName);
+    }
+
+    @startCreate
+     /**
+      * Creates the Resource for dummy_small_model.
+      *
+      * @param Request $request
+      *
+      * @return \Illuminate\Http\JsonResponse
+      */
+    public function store(Request $request)
+    {
+        $validation = $this->validateDummy($request);
+
+        if ($validation->fails()) {
+            return $this->throwValidation($validation->messages()->first());
+        }
+
+        $this->repository->create($request->all());
+
+        return new DummyResource(DummyModel::orderBy('created_at', 'desc')->first());
+
+    }
+    /**
+         * Update dummy_small_model.
+         *
+         * @param DummyModel    $DummyArgumentName
+         * @param Request $request
+         *
+         * @return \Illuminate\Http\JsonResponse
+         */
+    public function update(Request $request, DummyModel $DummyArgumentName)
+    {
+        $validation = $this->validateDummy($request, 'update');
+
+        if ($validation->fails()) {
+            return $this->throwValidation($validation->messages()->first());
+        }
+
+        $this->repository->update($DummyArgumentName, $request->all());
+
+        $DummyArgumentName = DummyModel::findOrfail($DummyArgumentName->id);
+
+        return new DummyResource($DummyArgumentName);
+    }
+    @endEdit@startDelete
+    /**
+     * Delete dummy_small_model.
+     *
+     * @param DummyModel    $DummyArgumentName
+     * @param Request $request
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function destroy(DummyModel $DummyArgumentName)
+    {
+        $this->repository->delete($DummyArgumentName);
+
+        return $this->respond([
+            'message' => _tr('alerts.backend.dummy_small_model.deleted'),
+        ]);
+    }
+    @endDelete
+
+    /**
+     * validate DummyArgumentName.
+     *
+     * @param $request
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function validateDummy(Request $request, $action = 'insert')
+    {
+        $validation = Validator::make($request->all(), all_validation_array);
+
+        return $validation;
+    }
+
+    /**
+     * validate message for validate DummyArgumentName.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function messages()
+    {
+        return [
+
+        ];
+    }
+}

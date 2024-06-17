@@ -70,6 +70,8 @@ class ModuleController extends Controller
         $this->generator->createResponses();
         $this->generator->createRepository();
         $this->generator->createController();
+        $this->generator->createResources();
+        $this->generator->createApiController();
         $this->generator->createTableController();
         $this->generator->createRouteFiles();
         $this->generator->insertToLanguageFiles();

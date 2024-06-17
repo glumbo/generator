@@ -57,7 +57,19 @@ class ModuleRepository extends BaseRepository
                     'display_name' => Str::title(str_replace('-', ' ', $permission)).' Permission',
                 ];
                 //Creating Permission
-                $per = Permission::firstOrCreate($perm);
+                $per = Permission::withTrashed()->where('name', $perm['name'])->first();
+                if ($per) {
+                    if ($per->trashed()) {
+                        $per->restore();
+                        $per->update($perm);
+                    } else {
+                        // Gerekirse mevcut kaydı güncelle
+                        $per->update($perm);
+                    }
+                } else {
+                    Permission::create($per);
+                }
+
             }
 
             $mod = [
@@ -90,10 +102,7 @@ class ModuleRepository extends BaseRepository
         if ($module) {
             // Delete data
             Module::destroy($module->id);
-
-            foreach ($permissions as $permission) {
-                $per = Permission::whereName($permission)->delete();
-            }
+            Permission::whereIn('name', $permissions)->delete();
 
             return true;
         } else {

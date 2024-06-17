@@ -6,6 +6,9 @@ return [
 // Default : Backend
 'controller_namespace' => 'Backend',
 
+// Default : V1
+'api_version' => 'V1',
+
 // After App\Http\Requests
 // Default : Backend
 'request_namespace' => 'Backend',
@@ -17,6 +20,9 @@ return [
 // After App\Repositories
 // Default : Backend
 'repository_namespace'=> 'Backend',
+
+// Default : 
+'resource_namespace'=> '',
 
 // views folder after resources/views
 // Default : backend
